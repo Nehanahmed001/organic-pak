@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vincenzo Trattoria — AI Assistant Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --cream:#F7F1E6;
+    --olive:#4A5A34;
+    --olive-dark:#33401F;
+    --terracotta:#B5502F;
+    --terracotta-dark:#8A3A20;
+    --ink:#2B2620;
+    --ink-soft:#6B6255;
+    --line:#E1D6C0;
+    --card:#FFFCF6;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px;
+  }
+
+  .phone{
+    width:100%;
+    max-width:420px;
+  }
+
+  .header{
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--terracotta-dark);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .restaurant-name{
+    font-family:'Fraunces',serif;
+    font-size:30px;
+    font-weight:600;
+    color:var(--olive-dark);
+    margin:0 0 4px;
+    letter-spacing:-.01em;
+  }
+  .tagline{
+    font-size:13px;
+    color:var(--ink-soft);
+    font-style:italic;
+    font-family:'Fraunces',serif;
+  }
+
+  .widget{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 2px 0 rgba(74,90,52,0.06);
+  }
+
+  .widget-top{
+    background:var(--olive-dark);
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:#8FCB7E;
+    box-shadow:0 0 0 3px rgba(143,203,126,0.25);
+  }
+  .widget-top-text{
+    color:#F2EEE2;
+    font-size:13px;
+    font-weight:500;
+  }
+  .widget-top-sub{
+    color:#B9C4A9;
+    font-size:11px;
+  }
+
+  .messages{
+    height:420px;
+    overflow-y:auto;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(181,80,47,0.04), transparent 40%),
+      var(--card);
+  }
+
+  .msg{
+    max-width:82%;
+    padding:10px 14px;
+    border-radius:14px;
+    font-size:14px;
+    line-height:1.5;
+  }
+  .msg.bot{
+    align-self:flex-start;
+    background:#EFEADA;
+    color:var(--ink);
+    border-bottom-left-radius:4px;
+  }
+  .msg.user{
+    align-self:flex-end;
+    background:var(--terracotta);
+    color:#FFF6EF;
+    border-bottom-right-radius:4px;
+  }
+  .msg.typing{
+    display:flex;
+    gap:4px;
+    align-items:center;
+    padding:12px 16px;
+  }
+  .typing span{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--ink-soft);
+    opacity:.5;
+    animation:bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2){animation-delay:.15s;}
+  .typing span:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce{
+    0%,60%,100%{transform:translateY(0);opacity:.4;}
+    30%{transform:translateY(-4px);opacity:1;}
+  }
+
+  .quick-replies{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    padding:0 18px 14px;
+  }
+  .chip{
+    font-size:12px;
+    padding:7px 12px;
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:100px;
+    color:var(--olive-dark);
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .chip:hover{
+    background:#EFEADA;
+    border-color:var(--olive);
+  }
+
+  .input-row{
+    display:flex;
+    gap:8px;
+    padding:12px 14px;
+    border-top:1px solid var(--line);
+    background:var(--card);
+  }
+  .input-row input{
+    flex:1;
+    border:1px solid var(--line);
+    border-radius:100px;
+    padding:10px 16px;
+    font-size:14px;
+    font-family:'Inter',sans-serif;
+    outline:none;
+    background:#FFFFFF;
+  }
+  .input-row input:focus{
+    border-color:var(--olive);
+  }
+  .send-btn{
+    width:38px;height:38px;
+    border-radius:50%;
+    border:none;
+    background:var(--terracotta);
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .send-btn:hover{background:var(--terracotta-dark);}
+  .send-btn:disabled{opacity:.5;cursor:default;}
+
+  .footnote{
+    text-align:center;
+    margin-top:16px;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .footnote b{color:var(--olive-dark);}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="header">
+    <div class="eyebrow">Live demo</div>
+    <div class="restaurant-name">Vincenzo Trattoria</div>
+    <div class="tagline">Your AI host — always on, never fully booked</div>
+  </div>
+
+  <div class="widget">
+    <div class="widget-top">
+      <div class="dot"></div>
+      <div>
+        <div class="widget-top-text">Vincenzo Assistant</div>
+        <div class="widget-top-sub">Answers instantly, day or night</div>
+      </div>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="msg bot">Ciao! Welcome to Vincenzo Trattoria. I can help with our menu, opening hours, bookings, or anything else — what would you like to know?</div>
+    </div>
+
+    <div class="quick-replies" id="quickReplies">
+      <button class="chip" onclick="sendQuick('Are you open on Sunday?')">Open Sunday?</button>
+      <button class="chip" onclick="sendQuick('Table for 4 tomorrow at 7pm')">Book a table</button>
+      <button class="chip" onclick="sendQuick('Do you have vegan options?')">Vegan options?</button>
+    </div>
+
+    <div class="input-row">
+      <input id="userInput" type="text" placeholder="Ask about hours, menu, bookings..." onkeydown="if(event.key==='Enter')sendMessage();">
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" aria-label="Send">➤</button>
+    </div>
+  </div>
+
+  <div class="footnote">Built for <b>Vincenzo Trattoria</b> — this is what an always-on assistant looks like on your own site or WhatsApp.</div>
+</div>
+
+<script>
+const RESTAURANT_INFO = `
+You are the friendly AI host for Vincenzo Trattoria, an independent Italian restaurant in Manchester city centre (34 St Ann St, Manchester M2 7LE). Answer guest questions warmly, briefly, and helpfully, like a welcoming host would on the phone. Keep replies short (2-4 sentences max), plain text, no markdown formatting.
+
+FACTS TO USE:
+- Hours: Mon-Sun 12:00-10:00pm (Fri & Sat until 10:30pm)
+- Phone: 0161 833 1000
+- Cuisine: Classic Italian trattoria - fresh pasta, wood-fired dishes, seasonal specials
+- Popular dishes: seafood pasta, lasagne, arancini, meatballs, carbonara
+- Vegan/vegetarian: several pasta and antipasti options available, can accommodate dietary needs with advance notice
+- Booking: for parties up to 6, you can take a booking request directly (ask for name, date, time, party size, then confirm you've "noted" it and a team member will confirm by phone/text within a few hours). For parties over 6, ask them to call directly.
+- Walk-ins welcome but recommend booking for Friday/Saturday evenings
+- Parking: no dedicated parking, but NCP Chinatown car park is 3 min walk
+- Dress code: smart casual
+- Kids welcome, high chairs available
+
+Stay in character as the restaurant's assistant. If asked something you don't know, say you'll have a team member follow up, and offer the phone number.
+`;
+
+let conversationHistory = [];
+
+function appendMessage(text, sender){
+  const messages = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + sender;
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  return div;
+}
+
+function showTyping(){
+  const messages = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg bot typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function hideTyping(){
+  const t = document.getElementById('typingIndicator');
+  if(t) t.remove();
+}
+
+function sendQuick(text){
+  document.getElementById('userInput').value = text;
+  sendMessage();
+}
+
+async function sendMessage(){
+  const input = document.getElementById('userInput');
+  const btn = document.getElementById('sendBtn');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const qr = document.getElementById('quickReplies');
+  if(qr) qr.style.display = 'none';
+
+  appendMessage(text, 'user');
+  conversationHistory.push({role:'user', content: text});
+  input.value = '';
+  btn.disabled = true;
+  showTyping();
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 300,
+        system: RESTAURANT_INFO,
+        messages: conversationHistory
+      })
+    });
+    const data = await response.json();
+    hideTyping();
+
+    let replyText = "Sorry, I'm having trouble connecting right now — please call us on 0161 833 1000.";
+    if(data && data.content){
+      const textBlock = data.content.find(b => b.type === 'text');
+      if(textBlock) replyText = textBlock.text;
+    }
+
+    appendMessage(replyText, 'bot');
+    conversationHistory.push({role:'assistant', content: replyText});
+  }catch(err){
+    hideTyping();
+    appendMessage("Sorry, I'm having trouble connecting right now — please call us on 0161 833 1000.", 'bot');
+  }
+
+  btn.disabled = false;
+  input.focus();
+}
+</script>
+
+</body>
+</html>
